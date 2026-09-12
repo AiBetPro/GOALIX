@@ -1,5 +1,0 @@
-'use client';
-import {useEffect,useState} from 'react';
-export default function Bets(){const [bets,setBets]=useState<any[]>([]);const [balance,setBalance]=useState(0);
-useEffect(()=>{fetch('/api/bets').then(r=>r.json()).then(j=>{setBets(j.bets||[]);setBalance(j.wallet?.balance||0)})},[]);
-return <main className="shell"><header className="top"><a href="/">← GOALIX</a><span className="pill">{balance.toFixed(2)} FCFA</span></header><section className="panel"><p className="eyebrow">MON ACTIVITÉ</p><h1>Mes paris</h1>{!bets.length?<p className="muted">Aucun pari enregistré.</p>:bets.map(b=><article className="bet" key={b.id}><div><b>{b.id}</b><small>{new Date(b.createdAt).toLocaleString('fr-FR')}</small></div><div><span>{b.selections.length} sélection(s) · cote {b.totalOdds}</span><strong>{b.stake.toFixed(2)} FCFA → {b.potentialWin.toFixed(2)} FCFA</strong></div><em>{b.status}</em></article>)}</section></main>}
