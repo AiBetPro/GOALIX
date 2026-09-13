@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    // Placeholder for live matches endpoint
+    // Placeholder for AI rankings endpoint
     return NextResponse.json({
       success: true,
-      message: 'Live matches endpoint',
-      matches: []
+      message: 'AI rankings endpoint',
+      rankings: []
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch live matches' },
+      { error: 'Failed to fetch rankings' },
       { status: 500 }
     );
   }
