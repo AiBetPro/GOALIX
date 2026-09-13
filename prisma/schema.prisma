@@ -15,7 +15,18 @@ model User {
   email String  @unique
   name  String?
   bets  Bet[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
+model Match {
+  id        Int     @id @default(autoincrement())
+  homeTeam  String
+  awayTeam  String
+  date      DateTime
+  league    String
+  bets      Bet[]
+  predictions Prediction[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -23,24 +34,22 @@ model User {
 model Bet {
   id        Int     @id @default(autoincrement())
   userId    Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id])
+  matchId   Int
+  match     Match   @relation(fields: [matchId], references: [id])
   amount    Float
   odds      Float
   status    String  @default("pending")
-  sportId   Int
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Match {
+model Prediction {
   id        Int     @id @default(autoincrement())
-  sportId   Int
-  homeTeam  String
-  awayTeam  String
-  status    String  @default("scheduled")
-  startTime DateTime
-
+  matchId   Int
+  match     Match   @relation(fields: [matchId], references: [id])
+  prediction String
+  confidence Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

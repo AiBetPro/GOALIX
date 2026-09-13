@@ -1,54 +1,44 @@
-export type Selection={
-  matchId:string;
-  label:string;
-  market:string;
-  odd:number
-};
+import { Bet, Match } from './data';
 
-export type Bet={
-  id:string;
-  createdAt:string;
-  stake:number;
-  totalOdds:number;
-  potentialWin:number;
-  status:'PENDING'|'WON'|'LOST';
-  selections:Selection[]
-};
+class BetStore {
+  private bets: Bet[] = [];
+  private nextId = 1;
 
-let balance=10000;
-const bets:Bet[]=[];
+  addBet(bet: Omit<Bet, 'id' | 'created_at'>): Bet {
+    const newBet: Bet = {
+      ...bet,
+      id: this.nextId++,
+      created_at: new Date().toISOString(),
+    };
+    this.bets.push(newBet);
+    return newBet;
+  }
 
-export function getWallet(){
-  return {balance,currency:'XOF'};
+  getBets(): Bet[] {
+    return this.bets;
+  }
+
+  getBetById(id: number): Bet | undefined {
+    return this.bets.find(bet => bet.id === id);
+  }
+
+  updateBetStatus(id: number, status: Bet['status']): Bet | undefined {
+    const bet = this.getBetById(id);
+    if (bet) {
+      bet.status = status;
+    }
+    return bet;
+  }
+
+  deleteBet(id: number): boolean {
+    const index = this.bets.findIndex(bet => bet.id === id);
+    if (index > -1) {
+      this.bets.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
 }
 
-export function listBets(){
-  return [...bets].reverse();
-}
-
-export function placeBet(input:{
-  stake:number;
-  selections:Selection[];
-  expectedOdds:number
-}){
-  if(!Number.isFinite(input.stake)||input.stake<=0) throw new Error('Mise invalide');
-  if(input.stake>balance) throw new Error('Solde insuffisant');
-  if(!input.selections.length) throw new Error('Coupon vide');
-  
-  const total=input.selections.reduce((p,s)=>p*s.odd,1);
-  if(Math.abs(total-input.expectedOdds)>0.001) throw new Error('Les cotes ont changé. Actualisez le coupon.');
-  
-  balance-=input.stake;
-  const bet:Bet={
-    id:'B'+Date.now(),
-    createdAt:new Date().toISOString(),
-    stake:Number(input.stake.toFixed(2)),
-    totalOdds:Number(total.toFixed(2)),
-    potentialWin:Number((input.stake*total).toFixed(2)),
-    status:'PENDING',
-    selections:input.selections
-  };
-  
-  bets.push(bet);
-  return {bet,wallet:getWallet()};
-}
+export const betStore = new BetStore();
+export default betStore;
