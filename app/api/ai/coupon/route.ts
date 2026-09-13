@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // Placeholder for AI coupon prediction endpoint
+    // Placeholder for AI rankings endpoint
     return NextResponse.json({
       success: true,
-      message: 'AI coupon predictions endpoint',
-      data: []
+      message: 'AI rankings endpoint',
+      rankings: []
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch coupon predictions' },
+      { error: 'Failed to fetch rankings' },
       { status: 500 }
     );
   }
