@@ -1,32 +1,28 @@
-const API_KEY = process.env.SPORTMONKS_API_KEY;
-const BASE_URL = 'https://api.sportmonks.com/v3';
+const BASE='https://api.sportmonks.com/v3/football';
 
-export async function getMatches(sportId: number) {
-  try {
-    const response = await fetch(`${BASE_URL}/matches?filter[sport_id]=${sportId}&api_token=${API_KEY}`);
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching matches:', error);
-    throw error;
-  }
+function token(){
+  return process.env.SPORTMONKS_TOKEN||''
 }
 
-export async function getMatch(matchId: number) {
-  try {
-    const response = await fetch(`${BASE_URL}/matches/${matchId}?api_token=${API_KEY}`);
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching match:', error);
-    throw error;
-  }
+export async function getLive(){
+  const t=token();
+  if(!t) return {configured:false,data:[]};
+  const r=await fetch(`${BASE}/livescores/inplay?include=participants;scores;events;state;periods`,{
+    headers:{Authorization:t},
+    cache:'no-store'
+  });
+  if(!r.ok) throw new Error(`Sportmonks ${r.status}`);
+  return {configured:true,data:(await r.json()).data||};
 }
 
-export async function getTeams(sportId: number) {
-  try {
-    const response = await fetch(`${BASE_URL}/teams?filter[sport_id]=${sportId}&api_token=${API_KEY}`);
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching teams:', error);
-    throw error;
-  }
+export async function getInplayOdds(fixtureId?:string){
+  const t=token();
+  if(!t) return {configured:false,data:[]};
+  const path=fixtureId?`/odds/inplay/fixtures/${fixtureId}`:'/odds/inplay';
+  const r=await fetch(`${BASE}${path}`,{
+    headers:{Authorization:t},
+    cache:'no-store'
+  });
+  if(!r.ok) throw new Error(`Sportmonks ${r.status}`);
+  return {configured:true,data:(await r.json()).data||};
 }
