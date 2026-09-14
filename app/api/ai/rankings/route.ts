@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import { rankMatches } from '@/lib/ai-engine';
+import { rankMatches } from '../../../../lib/ai-engine';
 
 export async function GET() {
   try {
-    // Récupère les données de matchs (depuis la DB, une API, etc.)
-    const matches = []; // À remplacer par tes vraies données
-    
-    const rankings = rankMatches(matches);
+    const rankings = rankMatches();
 
     return NextResponse.json({
       success: true,
