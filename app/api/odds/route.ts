@@ -1,16 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Placeholder for odds endpoint
     return NextResponse.json({
       success: true,
       message: 'Odds endpoint',
-      odds: []
+      odds: [],
     });
   } catch (error) {
+    console.error('Odds error:', error);
+
     return NextResponse.json(
-      { error: 'Failed to fetch odds' },
+      {
+        success: false,
+        error: 'Failed to fetch odds',
+      },
       { status: 500 }
     );
   }
