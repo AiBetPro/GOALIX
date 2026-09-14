@@ -1,16 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // Placeholder for live matches endpoint
     return NextResponse.json({
       success: true,
       message: 'Live matches endpoint',
-      matches: []
+      matches: [],
     });
   } catch (error) {
+    console.error('Live matches error:', error);
+
     return NextResponse.json(
-      { error: 'Failed to fetch live matches' },
+      {
+        success: false,
+        error: 'Failed to fetch live matches',
+      },
       { status: 500 }
     );
   }
