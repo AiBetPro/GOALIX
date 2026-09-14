@@ -1,17 +1,23 @@
 import { NextResponse } from 'next/server';
+import { rankMatches } from '@/lib/ai-engine';
 
 export async function GET() {
   try {
-    // Placeholder for AI rankings endpoint
+    const rankings = rankMatches();
+
     return NextResponse.json({
       success: true,
-      message: 'AI rankings endpoint',
-      rankings: []
+      rankings,
     });
   } catch (error) {
+    console.error('AI rankings error:', error);
+
     return NextResponse.json(
-      { error: 'Failed to fetch rankings' },
+      {
+        success: false,
+        error: 'Failed to generate AI rankings',
+      },
       { status: 500 }
     );
   }
-}
+      }
