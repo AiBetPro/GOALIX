@@ -3,7 +3,10 @@ import { rankMatches } from '@/lib/ai-engine';
 
 export async function GET() {
   try {
-    const rankings = await rankMatches();
+    // Récupère les données de matchs (depuis la DB, une API, etc.)
+    const matches = []; // À remplacer par tes vraies données
+    
+    const rankings = rankMatches(matches);
 
     return NextResponse.json({
       success: true,
