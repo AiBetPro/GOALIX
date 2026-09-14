@@ -3,7 +3,7 @@ import { rankMatches } from '@/lib/ai-engine';
 
 export async function GET() {
   try {
-    const rankings = rankMatches();
+    const rankings = await rankMatches();
 
     return NextResponse.json({
       success: true,
