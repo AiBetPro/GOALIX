@@ -1,4 +1,7 @@
-export type RiskProfile = 'prudent' | 'equilibre' | 'audacieux';
+export type RiskProfile =
+  | 'prudent'
+  | 'equilibre'
+  | 'audacieux';
 
 export interface AIRanking {
   matchId: string;
@@ -13,12 +16,6 @@ export interface AIRanking {
   reason: string;
 }
 
-/**
- * Classe un ensemble de matchs à partir de leurs cotes.
- * Cette version est volontairement simple pour permettre
- * au projet de compiler avant l'intégration des vraies
- * données sportives et du moteur IA.
- */
 export function rankMatches(matches: any[] = []): AIRanking[] {
   return matches
     .map((match: any) => {
@@ -33,7 +30,10 @@ export function rankMatches(matches: any[] = []): AIRanking[] {
 
       const probability = Math.min(
         95,
-        Math.max(5, Math.round((1 / safeOdds) * 100))
+        Math.max(
+          5,
+          Math.round((1 / safeOdds) * 100)
+        )
       );
 
       let risk: RiskProfile = 'audacieux';
@@ -46,9 +46,15 @@ export function rankMatches(matches: any[] = []): AIRanking[] {
 
       return {
         matchId: String(match.id ?? ''),
-        homeTeam: String(match.homeTeam ?? 'Équipe domicile'),
-        awayTeam: String(match.awayTeam ?? 'Équipe extérieure'),
-        league: String(match.league ?? 'Football'),
+        homeTeam: String(
+          match.homeTeam ?? 'Équipe domicile'
+        ),
+        awayTeam: String(
+          match.awayTeam ?? 'Équipe extérieure'
+        ),
+        league: String(
+          match.league ?? 'Football'
+        ),
         selection: `${match.homeTeam ?? 'Équipe domicile'} gagne`,
         odds: safeOdds,
         score: probability,
@@ -59,4 +65,4 @@ export function rankMatches(matches: any[] = []): AIRanking[] {
       };
     })
     .sort((a, b) => b.score - a.score);
-  }
+         }
