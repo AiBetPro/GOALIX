@@ -1,28 +1,268 @@
-import React from 'react';
 import Link from 'next/link';
+
+const matches = [
+  {
+    league: 'Premier League',
+    time: '18:00',
+    home: 'Arsenal',
+    away: 'Chelsea',
+    odds: ['1.65', '3.70', '4.90'],
+  },
+  {
+    league: 'La Liga',
+    time: '20:30',
+    home: 'Barcelona',
+    away: 'Sevilla',
+    odds: ['1.42', '4.40', '6.80'],
+  },
+  {
+    league: 'Serie A',
+    time: '21:00',
+    home: 'Inter',
+    away: 'Milan',
+    odds: ['1.75', '3.50', '4.30'],
+  },
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="container mx-auto px-4 py-16">
-        <h1 className="text-5xl font-bold text-white mb-4">GOALIX</h1>
-        <p className="text-xl text-gray-300 mb-8">Sports Betting & AI Predictions Platform</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-          <Link href="/dashboard" className="bg-blue-600 hover:bg-blue-700 p-6 rounded-lg text-white">
-            <h2 className="text-2xl font-bold">Dashboard</h2>
+    <main className="goalix-home">
+      <header className="goalix-header">
+        <Link href="/" className="logo">
+          GOA<span>LIX</span>
+        </Link>
+
+        <nav className="desktop-nav">
+          <Link href="/dashboard">Sports</Link>
+          <Link href="/live">🔴 Live</Link>
+          <Link href="/ai-prono">🤖 IA Prono</Link>
+          <Link href="/bets">Mes paris</Link>
+        </nav>
+
+        <Link href="/dashboard" className="account-button">
+          👤
+        </Link>
+      </header>
+
+      <section className="hero-v1">
+        <div className="hero-content">
+          <div className="live-badge">
+            <span />
+            PARIS SPORTIFS & IA
+          </div>
+
+          <h1>
+            Le sport.
+            <br />
+            <strong>Ton analyse.</strong>
+            <br />
+            Ton pari.
+          </h1>
+
+          <p>
+            Retrouvez les matchs, les cotes, le live et notre
+            système d&apos;analyse IA dans une seule plateforme.
+          </p>
+
+          <div className="hero-actions">
+            <Link href="/dashboard" className="primary-button">
+              Voir les matchs
+            </Link>
+
+            <Link href="/ai-prono" className="secondary-button">
+              🤖 IA Prono
+            </Link>
+          </div>
+        </div>
+
+        <div className="hero-card">
+          <div className="hero-card-top">
+            <span>🔥 MATCH À LA UNE</span>
+            <small>18:00</small>
+          </div>
+
+          <div className="teams">
+            <div>
+              <div className="team-icon">A</div>
+              <strong>Arsenal</strong>
+            </div>
+
+            <span className="vs">VS</span>
+
+            <div>
+              <div className="team-icon">C</div>
+              <strong>Chelsea</strong>
+            </div>
+          </div>
+
+          <div className="featured-odds">
+            <div>
+              <small>1</small>
+              <strong>1.65</strong>
+            </div>
+
+            <div>
+              <small>X</small>
+              <strong>3.70</strong>
+            </div>
+
+            <div>
+              <small>2</small>
+              <strong>4.90</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="sports-section">
+        <div className="section-title">
+          <div>
+            <span>EXPLORER</span>
+            <h2>Sports populaires</h2>
+          </div>
+
+          <Link href="/dashboard">Voir tout →</Link>
+        </div>
+
+        <div className="sports-grid">
+          <Link href="/dashboard" className="sport-card active">
+            <span>⚽</span>
+            <strong>Football</strong>
+            <small>245 matchs</small>
           </Link>
-          <Link href="/live" className="bg-green-600 hover:bg-green-700 p-6 rounded-lg text-white">
-            <h2 className="text-2xl font-bold">Live Matches</h2>
+
+          <Link href="/dashboard" className="sport-card">
+            <span>🏀</span>
+            <strong>Basketball</strong>
+            <small>38 matchs</small>
           </Link>
-          <Link href="/ai-prono" className="bg-purple-600 hover:bg-purple-700 p-6 rounded-lg text-white">
-            <h2 className="text-2xl font-bold">AI Predictions</h2>
+
+          <Link href="/dashboard" className="sport-card">
+            <span>🎾</span>
+            <strong>Tennis</strong>
+            <small>64 matchs</small>
           </Link>
-          <Link href="/bets" className="bg-red-600 hover:bg-red-700 p-6 rounded-lg text-white">
-            <h2 className="text-2xl font-bold">My Bets</h2>
+
+          <Link href="/dashboard" className="sport-card">
+            <span>🏎️</span>
+            <strong>Formule 1</strong>
+            <small>12 événements</small>
           </Link>
         </div>
+      </section>
+
+      <section className="matches-section">
+        <div className="section-title">
+          <div>
+            <span>AUJOURD&apos;HUI</span>
+            <h2>Matchs populaires</h2>
+          </div>
+
+          <Link href="/live">🔴 Live →</Link>
+        </div>
+
+        <div className="matches-list">
+          {matches.map((match) => (
+            <article className="match-card" key={`${match.home}-${match.away}`}>
+              <div className="match-info">
+                <small>{match.league}</small>
+                <span>{match.time}</span>
+              </div>
+
+              <div className="match-teams">
+                <strong>{match.home}</strong>
+                <span>vs</span>
+                <strong>{match.away}</strong>
+              </div>
+
+              <div className="match-odds">
+                <button>
+                  <small>1</small>
+                  {match.odds[0]}
+                </button>
+
+                <button>
+                  <small>X</small>
+                  {match.odds[1]}
+                </button>
+
+                <button>
+                  <small>2</small>
+                  {match.odds[2]}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="ai-banner">
+        <div>
+          <div className="ai-label">🤖 GOALIX AI</div>
+
+          <h2>
+            Laissez l&apos;IA
+            <br />
+            analyser les matchs.
+          </h2>
+
+          <p>
+            Choisissez votre niveau de risque et laissez notre
+            système classer les opportunités disponibles.
+          </p>
+
+          <Link href="/ai-prono" className="primary-button">
+            Découvrir IA Prono →
+          </Link>
+        </div>
+
+        <div className="ai-orb">
+          <span>AI</span>
+        </div>
+      </section>
+
+      <footer className="goalix-footer">
+        <div>
+          <Link href="/" className="logo">
+            GOA<span>LIX</span>
+          </Link>
+          <p>Sports Betting & AI Predictions Platform</p>
+        </div>
+
+        <div className="footer-links">
+          <Link href="/dashboard">Sports</Link>
+          <Link href="/live">Live</Link>
+          <Link href="/ai-prono">IA Prono</Link>
+          <Link href="/bets">Mes paris</Link>
+        </div>
+      </footer>
+
+      <div className="mobile-nav">
+        <Link href="/">
+          <span>⌂</span>
+          Accueil
+        </Link>
+
+        <Link href="/dashboard">
+          <span>⚽</span>
+          Sports
+        </Link>
+
+        <Link href="/live">
+          <span>🔴</span>
+          Live
+        </Link>
+
+        <Link href="/ai-prono">
+          <span>🤖</span>
+          IA
+        </Link>
+
+        <Link href="/bets">
+          <span>🎫</span>
+          Paris
+        </Link>
       </div>
     </main>
   );
-}
+    }
