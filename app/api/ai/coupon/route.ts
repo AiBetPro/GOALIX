@@ -1,43 +1,23 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { rankMatches } from '@/lib/ai-engine';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Récupère les paramètres de query si nécessaire
-    const searchParams = request.nextUrl.searchParams;
-    
-    // TODO: Implémenter la logique d'AI pour générer/récupérer des coupons
-    
+    const rankings = rankMatches();
+
     return NextResponse.json({
       success: true,
-      message: 'AI coupons endpoint',
-      coupons: []
+      rankings,
     });
   } catch (error) {
-    console.error('Error in coupons endpoint:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch coupons' },
-      { status: 500 }
-    );
-  }
-}
+    console.error('AI rankings error:', error);
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    
-    // TODO: Implémenter la logique pour créer un nouveau coupon via AI
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Coupon created successfully',
-      coupon: null
-    }, { status: 201 });
-  } catch (error) {
-    console.error('Error creating coupon:', error);
     return NextResponse.json(
-      { error: 'Failed to create coupon' },
+      {
+        success: false,
+        error: 'Failed to generate AI rankings',
+      },
       { status: 500 }
     );
   }
-}
+          }
