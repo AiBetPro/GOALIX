@@ -29,7 +29,7 @@ const matches: Match[] = [
     probability: 61,
     risk: 'prudent',
     reason:
-      'La cote disponible favorise Arsenal. Cette sélection présente un profil relativement prudent dans notre démonstration.',
+      'La cote disponible favorise Arsenal. Cette sélection présente un profil relativement prudent dans cette démonstration.',
   },
   {
     id: 'barcelona-sevilla',
@@ -55,14 +55,14 @@ const matches: Match[] = [
     probability: 57,
     risk: 'equilibre',
     reason:
-      'La cote offre un compromis entre niveau de risque et gain potentiel.',
+      'La cote offre ici un compromis entre niveau de risque et gain potentiel.',
   },
 ];
 
 const riskLabels: Record<RiskProfile, string> = {
-  prudent: '🟢 Prudent',
-  equilibre: '🟡 Équilibré',
-  audacieux: '🔴 Audacieux',
+  prudent: 'Prudent',
+  equilibre: 'Équilibré',
+  audacieux: 'Audacieux',
 };
 
 export default function AIPronoPage() {
@@ -97,10 +97,14 @@ export default function AIPronoPage() {
 
   function toggleSelection(match: Match) {
     setSelected((current) => {
-      const exists = current.some((item) => item.id === match.id);
+      const exists = current.some(
+        (item) => item.id === match.id
+      );
 
       if (exists) {
-        return current.filter((item) => item.id !== match.id);
+        return current.filter(
+          (item) => item.id !== match.id
+        );
       }
 
       return [...current, match];
@@ -117,251 +121,310 @@ export default function AIPronoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-24">
-      <div className="mx-auto max-w-4xl px-4 py-7">
+    <main className="ai-page">
 
-        <header className="mb-7">
-          <div className="mb-2 text-sm font-bold text-emerald-600">
-            🤖 GOALIX AI
+      {/* LOGO IA */}
+      <section className="ai-brand">
+        <div className="ai-orbit">
+          <div className="ai-logo-core">
+            <span>G</span>
+          </div>
+        </div>
+
+        <div className="ai-brand-name">
+          GOA<span>LIX</span>
+        </div>
+
+        <div className="ai-brand-label">
+          <span className="ai-status-dot" />
+          ARTIFICIAL INTELLIGENCE
+        </div>
+      </section>
+
+      {/* INTRODUCTION */}
+      <section className="ai-intro">
+        <div className="ai-eyebrow">
+          🤖 GOALIX AI
+        </div>
+
+        <h1>
+          IA <span>Prono</span>
+        </h1>
+
+        <p>
+          Analysez les matchs disponibles et laissez
+          GOALIX AI vous aider à construire votre coupon.
+        </p>
+      </section>
+
+      {/* PROFIL DE RISQUE */}
+      <section className="ai-risk-card">
+
+        <div className="ai-section-label">
+          VOTRE PROFIL
+        </div>
+
+        <h2>
+          Quel style de pari recherchez-vous ?
+        </h2>
+
+        <div className="ai-risk-grid">
+          {(
+            ['prudent', 'equilibre', 'audacieux'] as RiskProfile[]
+          ).map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+                setRisk(item);
+                setGenerated(false);
+              }}
+              className={`ai-risk-button ${
+                risk === item ? 'active' : ''
+              } ${item}`}
+            >
+              <span className="risk-icon">
+                {item === 'prudent'
+                  ? '🟢'
+                  : item === 'equilibre'
+                  ? '🟡'
+                  : '🔴'}
+              </span>
+
+              <span>{riskLabels[item]}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={generateCoupon}
+          className="ai-generate-button"
+        >
+          <span>🤖</span>
+          Générer mon coupon IA
+          <span className="arrow">→</span>
+        </button>
+      </section>
+
+      {/* MESSAGE */}
+      {generated && (
+        <div className="ai-success">
+          <div className="success-icon">✓</div>
+
+          <div>
+            <strong>Coupon IA généré</strong>
+
+            <p>
+              Les meilleures sélections selon votre profil
+              ont été ajoutées.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* MATCHS */}
+      <section className="ai-matches">
+
+        <div className="ai-section-heading">
+          <div>
+            <span>ANALYSE GOALIX</span>
+            <h2>Matchs recommandés</h2>
           </div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-950">
-            IA Prono
-          </h1>
+          <div className="match-count">
+            {filteredMatches.length}
+          </div>
+        </div>
 
-          <p className="mt-2 max-w-2xl text-slate-500">
-            Analysez les matchs disponibles et construisez un
-            coupon à partir des recommandations de GOALIX AI.
-          </p>
-        </header>
+        <div className="ai-match-list">
 
-        <section className="mb-6 rounded-3xl bg-slate-950 p-5 text-white shadow-lg">
-          <p className="text-sm font-semibold text-emerald-300">
-            VOTRE PROFIL DE RISQUE
-          </p>
+          {filteredMatches.map((match) => {
+            const isSelected = selected.some(
+              (item) => item.id === match.id
+            );
 
-          <h2 className="mt-2 text-2xl font-bold">
-            Comment souhaitez-vous jouer ?
-          </h2>
-
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            {(
-              ['prudent', 'equilibre', 'audacieux'] as RiskProfile[]
-            ).map((item) => (
-              <button
-                key={item}
-                onClick={() => {
-                  setRisk(item);
-                  setGenerated(false);
-                }}
-                className={`rounded-2xl px-3 py-4 text-sm font-bold transition ${
-                  risk === item
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-white/10 text-slate-300'
+            return (
+              <article
+                key={match.id}
+                className={`ai-match-card ${
+                  isSelected ? 'selected' : ''
                 }`}
               >
-                {riskLabels[item]}
-              </button>
-            ))}
-          </div>
 
-          <button
-            onClick={generateCoupon}
-            className="mt-5 w-full rounded-2xl bg-white py-4 font-bold text-slate-950 transition hover:bg-slate-100"
-          >
-            🤖 Générer mon coupon IA
-          </button>
-        </section>
+                <div className="match-top">
+                  <span>{match.league}</span>
 
-        {generated && (
-          <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-            <p className="font-bold text-emerald-800">
-              ✅ Coupon IA généré
-            </p>
+                  <div className="ai-score">
+                    <small>IA SCORE</small>
+                    <strong>{match.score}</strong>
+                  </div>
+                </div>
 
-            <p className="mt-1 text-sm text-emerald-700">
-              Les sélections les mieux classées selon le profil
-              choisi ont été ajoutées.
-            </p>
-          </div>
-        )}
+                <div className="match-teams">
+                  <strong>{match.homeTeam}</strong>
 
-        <section className="mb-6">
-          <div className="mb-4 flex items-end justify-between">
-            <div>
-              <p className="text-xs font-bold tracking-wider text-emerald-600">
-                ANALYSE
-              </p>
-
-              <h2 className="text-2xl font-bold text-slate-950">
-                Matchs recommandés
-              </h2>
-            </div>
-
-            <span className="text-sm text-slate-500">
-              {filteredMatches.length} match
-              {filteredMatches.length > 1 ? 's' : ''}
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {filteredMatches.map((match) => {
-              const isSelected = selected.some(
-                (item) => item.id === match.id
-              );
-
-              return (
-                <article
-                  key={match.id}
-                  className={`rounded-3xl bg-white p-5 shadow-sm ring-1 transition ${
-                    isSelected
-                      ? 'ring-emerald-400'
-                      : 'ring-slate-200'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-400">
-                        {match.league}
-                      </p>
-
-                      <h3 className="mt-1 text-lg font-bold text-slate-950">
-                        {match.homeTeam} vs {match.awayTeam}
-                      </h3>
-
-                      <p className="mt-2 font-semibold text-emerald-600">
-                        {match.selection}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-emerald-50 px-3 py-2 text-center">
-                      <p className="text-xs text-slate-500">
-                        Cote
-                      </p>
-
-                      <p className="font-extrabold text-emerald-700">
-                        {match.odds.toFixed(2)}
-                      </p>
-                    </div>
+                  <div className="match-vs">
+                    VS
                   </div>
 
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl bg-slate-50 p-3">
-                      <p className="text-xs text-slate-400">
-                        Score IA
-                      </p>
+                  <strong>{match.awayTeam}</strong>
+                </div>
 
-                      <p className="mt-1 text-xl font-bold text-slate-950">
-                        {match.score}/100
-                      </p>
-                    </div>
+                <div className="ai-selection">
+                  <span>PRONOSTIC</span>
 
-                    <div className="rounded-2xl bg-slate-50 p-3">
-                      <p className="text-xs text-slate-400">
-                        Probabilité indicative
-                      </p>
+                  <strong>
+                    {match.selection}
+                  </strong>
 
-                      <p className="mt-1 text-xl font-bold text-slate-950">
-                        {match.probability}%
-                      </p>
-                    </div>
-                  </div>
+                  <b>
+                    {match.odds.toFixed(2)}
+                  </b>
+                </div>
 
-                  <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold text-slate-400">
-                      POURQUOI ?
-                    </p>
+                <div className="ai-stat-grid">
 
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      {match.reason}
-                    </p>
-                  </div>
+                  <div>
+                    <small>
+                      Probabilité indicative
+                    </small>
 
-                  <button
-                    onClick={() => toggleSelection(match)}
-                    className={`mt-4 w-full rounded-2xl py-3 font-bold transition ${
-                      isSelected
-                        ? 'bg-slate-200 text-slate-700'
-                        : 'bg-emerald-600 text-white'
-                    }`}
-                  >
-                    {isSelected
-                      ? '✓ Retirer du coupon'
-                      : '+ Ajouter au coupon'}
-                  </button>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="rounded-3xl bg-slate-950 p-5 text-white">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">
-              🎟️ Coupon IA
-            </h2>
-
-            <span className="text-sm text-slate-400">
-              {selected.length} sélection
-              {selected.length > 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {selected.length === 0 ? (
-            <div className="mt-4 rounded-2xl bg-white/10 p-5 text-center text-sm text-slate-400">
-              Aucun pari sélectionné.
-            </div>
-          ) : (
-            <>
-              <div className="mt-4 space-y-2">
-                {selected.map((match) => (
-                  <div
-                    key={match.id}
-                    className="flex items-center justify-between rounded-2xl bg-white/10 p-4"
-                  >
-                    <div>
-                      <p className="font-semibold">
-                        {match.homeTeam} vs {match.awayTeam}
-                      </p>
-
-                      <p className="text-sm text-slate-400">
-                        {match.selection}
-                      </p>
-                    </div>
-
-                    <strong className="text-emerald-300">
-                      {match.odds.toFixed(2)}
+                    <strong>
+                      {match.probability}%
                     </strong>
                   </div>
-                ))}
-              </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
-                <span className="text-slate-400">
-                  Cote totale
-                </span>
+                  <div>
+                    <small>
+                      Niveau
+                    </small>
 
-                <strong className="text-2xl text-emerald-300">
-                  {totalOdds.toFixed(2)}
-                </strong>
-              </div>
-            </>
-          )}
+                    <strong>
+                      {riskLabels[match.risk]}
+                    </strong>
+                  </div>
 
-          <a
-            href="/bets"
-            className="mt-5 block w-full rounded-2xl bg-white py-4 text-center font-bold text-slate-950"
-          >
-            🎟️ Ouvrir mon coupon
-          </a>
-        </section>
+                </div>
 
-        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
-          ⚠️ Les analyses et probabilités affichées sont
-          indicatives et ne garantissent aucun résultat. Les
-          paris sportifs comportent un risque de perte.
+                <div className="ai-reason">
+                  <span>💡</span>
+
+                  <p>{match.reason}</p>
+                </div>
+
+                <button
+                  onClick={() =>
+                    toggleSelection(match)
+                  }
+                  className={`ai-add-button ${
+                    isSelected ? 'remove' : ''
+                  }`}
+                >
+                  {isSelected
+                    ? '✓ Retirer du coupon'
+                    : '+ Ajouter au coupon'}
+                </button>
+
+              </article>
+            );
+          })}
+
         </div>
+      </section>
+
+      {/* COUPON IA */}
+      <section className="ai-coupon">
+
+        <div className="coupon-header">
+          <div>
+            <span>🎟️</span>
+
+            <div>
+              <small>GOALIX AI</small>
+              <h2>Mon coupon IA</h2>
+            </div>
+          </div>
+
+          <strong>
+            {selected.length}
+          </strong>
+        </div>
+
+        {selected.length === 0 ? (
+          <div className="coupon-empty">
+            <div>🎟️</div>
+
+            <p>
+              Aucun pari sélectionné
+            </p>
+
+            <small>
+              Ajoutez des recommandations ci-dessus.
+            </small>
+          </div>
+        ) : (
+          <>
+            <div className="coupon-selections">
+
+              {selected.map((match) => (
+                <div
+                  key={match.id}
+                  className="coupon-selection"
+                >
+                  <div>
+                    <strong>
+                      {match.homeTeam} — {match.awayTeam}
+                    </strong>
+
+                    <span>
+                      {match.selection}
+                    </span>
+                  </div>
+
+                  <b>
+                    {match.odds.toFixed(2)}
+                  </b>
+                </div>
+              ))}
+
+            </div>
+
+            <div className="coupon-total">
+              <span>Cote totale</span>
+
+              <strong>
+                {totalOdds.toFixed(2)}
+              </strong>
+            </div>
+          </>
+        )}
+
+        <a
+          href="/bets"
+          className="ai-open-coupon"
+        >
+          Ouvrir mon coupon
+          <span>→</span>
+        </a>
+
+      </section>
+
+      {/* AVERTISSEMENT */}
+      <div className="ai-warning">
+        ⚠️ Les analyses et probabilités sont indicatives.
+        Elles ne garantissent aucun résultat. Les paris
+        sportifs comportent un risque de perte.
       </div>
+
+      <footer className="ai-footer">
+        <strong>
+          GOA<span>LIX</span>
+        </strong>
+
+        <p>
+          Sports Betting & AI Predictions
+        </p>
+      </footer>
+
     </main>
   );
-    }
+    } 
