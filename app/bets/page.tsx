@@ -2,109 +2,385 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+type MarketGroup =
+  | 'Résultat'
+  | 'Double chance'
+  | 'Total buts'
+  | 'Les deux équipes marquent'
+  | 'Score exact';
+
 type Selection = {
   id: string;
   match: string;
   league: string;
+  market: MarketGroup;
   choice: string;
   odds: number;
 };
 
-type BetCoupon = {
-  id: string;
-  code: string;
-  createdAt: string;
-  selections: Selection[];
-  totalOdds: number;
-  stake: number;
-  potentialWin: number;
-  status: 'pending' | 'won' | 'lost';
-};
-
 const availableSelections: Selection[] = [
+  // =========================
+  // RÉSULTAT 1X2
+  // =========================
   {
     id: 'arsenal-chelsea-1',
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
+    market: 'Résultat',
     choice: 'Arsenal gagne',
     odds: 1.65,
   },
   {
+    id: 'arsenal-chelsea-x',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Résultat',
+    choice: 'Match nul',
+    odds: 3.70,
+  },
+  {
+    id: 'arsenal-chelsea-2',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Résultat',
+    choice: 'Chelsea gagne',
+    odds: 4.90,
+  },
+
+  // =========================
+  // DOUBLE CHANCE
+  // =========================
+  {
+    id: 'arsenal-chelsea-1x',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Double chance',
+    choice: '1X — Arsenal ou nul',
+    odds: 1.20,
+  },
+  {
+    id: 'arsenal-chelsea-x2',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Double chance',
+    choice: 'X2 — Nul ou Chelsea',
+    odds: 1.85,
+  },
+  {
+    id: 'arsenal-chelsea-12',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Double chance',
+    choice: '12 — Arsenal ou Chelsea',
+    odds: 1.30,
+  },
+
+  // =========================
+  // TOTAL BUTS
+  // =========================
+  {
+    id: 'arsenal-chelsea-over15',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Plus de 1,5 buts',
+    odds: 1.35,
+  },
+  {
+    id: 'arsenal-chelsea-under15',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Moins de 1,5 buts',
+    odds: 2.80,
+  },
+  {
+    id: 'arsenal-chelsea-over25',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Plus de 2,5 buts',
+    odds: 1.70,
+  },
+  {
+    id: 'arsenal-chelsea-under25',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Moins de 2,5 buts',
+    odds: 2.10,
+  },
+  {
+    id: 'arsenal-chelsea-over35',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Plus de 3,5 buts',
+    odds: 2.40,
+  },
+  {
+    id: 'arsenal-chelsea-under35',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Moins de 3,5 buts',
+    odds: 1.50,
+  },
+
+  // =========================
+  // LES DEUX ÉQUIPES MARQUENT
+  // =========================
+  {
+    id: 'arsenal-chelsea-btts-yes',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Les deux équipes marquent',
+    choice: 'Les deux équipes marquent — Oui',
+    odds: 1.62,
+  },
+  {
+    id: 'arsenal-chelsea-btts-no',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Les deux équipes marquent',
+    choice: 'Les deux équipes marquent — Non',
+    odds: 2.15,
+  },
+
+  // =========================
+  // BUTS ARSENAL
+  // =========================
+  {
+    id: 'arsenal-chelsea-arsenal-over05',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Arsenal — Plus de 0,5 but',
+    odds: 1.22,
+  },
+  {
+    id: 'arsenal-chelsea-arsenal-over15',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Arsenal — Plus de 1,5 buts',
+    odds: 1.75,
+  },
+
+  // =========================
+  // BUTS CHELSEA
+  // =========================
+  {
+    id: 'arsenal-chelsea-chelsea-over05',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Chelsea — Plus de 0,5 but',
+    odds: 1.45,
+  },
+  {
+    id: 'arsenal-chelsea-chelsea-over15',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Total buts',
+    choice: 'Chelsea — Plus de 1,5 buts',
+    odds: 2.30,
+  },
+
+  // =========================
+  // SCORE EXACT
+  // =========================
+  {
+    id: 'arsenal-chelsea-score-10',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Score exact',
+    choice: 'Score exact — 1-0',
+    odds: 7.00,
+  },
+  {
+    id: 'arsenal-chelsea-score-11',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Score exact',
+    choice: 'Score exact — 1-1',
+    odds: 6.50,
+  },
+  {
+    id: 'arsenal-chelsea-score-20',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Score exact',
+    choice: 'Score exact — 2-0',
+    odds: 7.50,
+  },
+  {
+    id: 'arsenal-chelsea-score-21',
+    match: 'Arsenal vs Chelsea',
+    league: 'Premier League',
+    market: 'Score exact',
+    choice: 'Score exact — 2-1',
+    odds: 8.00,
+  },
+
+  // =========================
+  // AUTRES MATCHS
+  // =========================
+  {
     id: 'barca-sevilla-1',
     match: 'Barcelona vs Sevilla',
     league: 'La Liga',
+    market: 'Résultat',
     choice: 'Barcelona gagne',
     odds: 1.42,
+  },
+  {
+    id: 'barca-sevilla-1x',
+    match: 'Barcelona vs Sevilla',
+    league: 'La Liga',
+    market: 'Double chance',
+    choice: '1X — Barcelona ou nul',
+    odds: 1.12,
+  },
+  {
+    id: 'barca-sevilla-over25',
+    match: 'Barcelona vs Sevilla',
+    league: 'La Liga',
+    market: 'Total buts',
+    choice: 'Plus de 2,5 buts',
+    odds: 1.55,
+  },
+  {
+    id: 'barca-sevilla-btts',
+    match: 'Barcelona vs Sevilla',
+    league: 'La Liga',
+    market: 'Les deux équipes marquent',
+    choice: 'Les deux équipes marquent — Oui',
+    odds: 1.68,
   },
   {
     id: 'inter-milan-1',
     match: 'Inter vs Milan',
     league: 'Serie A',
+    market: 'Résultat',
     choice: 'Inter gagne',
     odds: 1.75,
   },
+  {
+    id: 'inter-milan-12',
+    match: 'Inter vs Milan',
+    league: 'Serie A',
+    market: 'Double chance',
+    choice: '12 — Inter ou Milan',
+    odds: 1.28,
+  },
+  {
+    id: 'inter-milan-over15',
+    match: 'Inter vs Milan',
+    league: 'Serie A',
+    market: 'Total buts',
+    choice: 'Plus de 1,5 buts',
+    odds: 1.30,
+  },
 ];
 
-const COUPON_STORAGE = 'goalix_current_coupon';
-const BETS_STORAGE = 'goalix_bets_history';
-const SHARED_STORAGE = 'goalix_shared_coupons';
+const marketIcons: Record<MarketGroup, string> = {
+  Résultat: '⚽',
+  'Double chance': '🔄',
+  'Total buts': '🥅',
+  'Les deux équipes marquent': '🤝',
+  'Score exact': '🎯',
+};
 
 function generateCouponCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-  let code = 'GX';
+  let code = '';
 
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(
-      Math.floor(Math.random() * chars.length)
-    );
+  for (let i = 0; i < 6; i += 1) {
+    code += chars[Math.floor(Math.random() * chars.length)];
   }
 
-  return code;
+  return `GX-${code}`;
 }
 
 export default function BetsPage() {
   const [selections, setSelections] = useState<Selection[]>([]);
   const [stake, setStake] = useState('');
-  const [history, setHistory] = useState<BetCoupon[]>([]);
-  const [shareCode, setShareCode] = useState('');
-  const [importCode, setImportCode] = useState('');
-  const [message, setMessage] = useState('');
+  const [couponCode, setCouponCode] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
+  const [validated, setValidated] = useState(false);
 
+  // Charger le coupon sauvegardé
   useEffect(() => {
     try {
-      const savedCoupon = localStorage.getItem(
-        COUPON_STORAGE
+      const savedSelections = localStorage.getItem(
+        'goalix_coupon_selections'
       );
 
-      const savedHistory = localStorage.getItem(
-        BETS_STORAGE
+      const savedStake = localStorage.getItem(
+        'goalix_coupon_stake'
       );
 
-      if (savedCoupon) {
-        setSelections(JSON.parse(savedCoupon));
+      const savedCode = localStorage.getItem(
+        'goalix_coupon_code'
+      );
+
+      if (savedSelections) {
+        const parsed = JSON.parse(savedSelections);
+
+        if (Array.isArray(parsed)) {
+          setSelections(parsed);
+        }
       }
 
-      if (savedHistory) {
-        setHistory(JSON.parse(savedHistory));
+      if (savedStake) {
+        setStake(savedStake);
+      }
+
+      if (savedCode) {
+        setCouponCode(savedCode);
       }
     } catch (error) {
       console.error(
-        'Erreur de chargement du coupon:',
+        'Erreur lors du chargement du coupon:',
         error
       );
     }
   }, []);
 
+  // Sauvegarder automatiquement
   useEffect(() => {
-    localStorage.setItem(
-      COUPON_STORAGE,
-      JSON.stringify(selections)
-    );
-  }, [selections]);
+    try {
+      localStorage.setItem(
+        'goalix_coupon_selections',
+        JSON.stringify(selections)
+      );
+
+      localStorage.setItem(
+        'goalix_coupon_stake',
+        stake
+      );
+
+      if (couponCode) {
+        localStorage.setItem(
+          'goalix_coupon_code',
+          couponCode
+        );
+      }
+    } catch (error) {
+      console.error(
+        'Erreur lors de la sauvegarde du coupon:',
+        error
+      );
+    }
+  }, [selections, stake, couponCode]);
 
   const totalOdds = useMemo(() => {
-    if (selections.length === 0) return 0;
+    if (selections.length === 0) {
+      return 0;
+    }
 
     return selections.reduce(
       (total, selection) =>
@@ -116,20 +392,33 @@ export default function BetsPage() {
   const potentialWin = useMemo(() => {
     const amount = Number(stake);
 
-    if (
-      !amount ||
-      amount <= 0 ||
-      totalOdds === 0
-    ) {
+    if (!amount || totalOdds === 0) {
       return 0;
     }
 
     return amount * totalOdds;
   }, [stake, totalOdds]);
 
-  function addSelection(
-    selection: Selection
-  ) {
+  const groupedMarkets = useMemo(() => {
+    const groups: Record<
+      MarketGroup,
+      Selection[]
+    > = {
+      Résultat: [],
+      'Double chance': [],
+      'Total buts': [],
+      'Les deux équipes marquent': [],
+      'Score exact': [],
+    };
+
+    availableSelections.forEach((selection) => {
+      groups[selection.market].push(selection);
+    });
+
+    return groups;
+  }, []);
+
+  function addSelection(selection: Selection) {
     setSelections((current) => {
       if (
         current.some(
@@ -139,833 +428,377 @@ export default function BetsPage() {
         return current;
       }
 
+      // Pour un même match et un même marché,
+      // on remplace la sélection précédente.
+      const sameMarket = current.find(
+        (item) =>
+          item.match === selection.match &&
+          item.market === selection.market
+      );
+
+      if (sameMarket) {
+        return current.map((item) =>
+          item.id === sameMarket.id
+            ? selection
+            : item
+        );
+      }
+
       return [...current, selection];
     });
 
-    setMessage(
-      `${selection.choice} ajouté au coupon.`
-    );
+    if (!couponCode) {
+      setCouponCode(generateCouponCode());
+    }
+
+    setValidated(false);
   }
 
   function removeSelection(id: string) {
     setSelections((current) =>
       current.filter(
-        (selection) =>
-          selection.id !== id
+        (selection) => selection.id !== id
       )
     );
+
+    setValidated(false);
   }
 
   function clearCoupon() {
     setSelections([]);
     setStake('');
-    setShareCode('');
-    setMessage('Coupon effacé.');
-  }
+    setCouponCode('');
+    setCopied(false);
+    setShared(false);
+    setValidated(false);
 
-  function validateCoupon() {
-    const amount = Number(stake);
-
-    if (selections.length === 0) {
-      setMessage(
-        'Ajoutez au moins une sélection.'
-      );
-      return;
-    }
-
-    if (!amount || amount <= 0) {
-      setMessage(
-        'Veuillez entrer une mise valide.'
-      );
-      return;
-    }
-
-    const code = generateCouponCode();
-
-    const coupon: BetCoupon = {
-      id: `${Date.now()}`,
-      code,
-      createdAt:
-        new Date().toLocaleString('fr-FR'),
-      selections,
-      totalOdds,
-      stake: amount,
-      potentialWin,
-      status: 'pending',
-    };
-
-    const newHistory = [
-      coupon,
-      ...history,
-    ];
-
-    localStorage.setItem(
-      BETS_STORAGE,
-      JSON.stringify(newHistory)
+    localStorage.removeItem(
+      'goalix_coupon_selections'
     );
 
-    const sharedCoupons = JSON.parse(
-      localStorage.getItem(
-        SHARED_STORAGE
-      ) || '{}'
+    localStorage.removeItem(
+      'goalix_coupon_stake'
     );
 
-    sharedCoupons[code] = coupon;
-
-    localStorage.setItem(
-      SHARED_STORAGE,
-      JSON.stringify(sharedCoupons)
-    );
-
-    setHistory(newHistory);
-    setShareCode(code);
-
-    setSelections([]);
-    setStake('');
-
-    setMessage(
-      `Coupon validé ! Code : ${code}`
+    localStorage.removeItem(
+      'goalix_coupon_code'
     );
   }
 
-  async function copyCode() {
-    if (!shareCode) return;
+  async function copyCouponCode() {
+    if (!couponCode) {
+      return;
+    }
 
     try {
       await navigator.clipboard.writeText(
-        shareCode
+        couponCode
       );
 
-      setMessage(
-        'Code coupon copié !'
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error(
+        'Impossible de copier le code:',
+        error
       );
-    } catch {
-      setMessage(
-        `Votre code : ${shareCode}`
+
+      alert(
+        `Code du coupon : ${couponCode}`
       );
     }
   }
 
   async function shareCoupon() {
-    if (!shareCode) return;
+    if (!couponCode || selections.length === 0) {
+      return;
+    }
 
-    const text =
-      `🎟️ Mon coupon GOALIX\n\n` +
-      `Code : ${shareCode}\n` +
-      `${history[0]?.selections.length || 0} sélections\n` +
-      `Cote : ${history[0]?.totalOdds.toFixed(2) || '0.00'}\n\n` +
-      `Ouvre GOALIX pour utiliser ce coupon.`;
+    const shareText = [
+      '🎟️ Coupon GOALIX',
+      '',
+      `Code : ${couponCode}`,
+      `Nombre de paris : ${selections.length}`,
+      `Cote totale : ${totalOdds.toFixed(2)}`,
+      stake
+        ? `Mise : ${Number(stake).toLocaleString(
+            'fr-FR'
+          )} FCFA`
+        : '',
+      '',
+      'Ouvre GOALIX pour retrouver ce coupon.',
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     try {
       if (
+        typeof navigator !== 'undefined' &&
         navigator.share
       ) {
         await navigator.share({
           title: 'Coupon GOALIX',
-          text,
+          text: shareText,
         });
 
-        setMessage(
-          'Coupon partagé.'
-        );
+        setShared(true);
+
+        setTimeout(() => {
+          setShared(false);
+        }, 2000);
       } else {
         await navigator.clipboard.writeText(
-          text
+          shareText
         );
 
-        setMessage(
-          'Message de partage copié.'
+        setShared(true);
+
+        setTimeout(() => {
+          setShared(false);
+        }, 2000);
+
+        alert(
+          'Le partage direct n’est pas disponible. Le coupon a été copié.'
         );
       }
-    } catch {
-      setMessage(
-        'Partage annulé.'
+    } catch (error) {
+      console.error(
+        'Erreur lors du partage:',
+        error
       );
     }
   }
 
-  function importCoupon() {
-    const code =
-      importCode
-        .trim()
-        .toUpperCase();
-
-    if (!code) {
-      setMessage(
-        'Entrez un code coupon.'
+  function validateCoupon() {
+    if (selections.length === 0) {
+      alert(
+        'Ajoutez au moins une sélection avant de valider.'
       );
       return;
     }
 
-    try {
-      const sharedCoupons =
-        JSON.parse(
-          localStorage.getItem(
-            SHARED_STORAGE
-          ) || '{}'
-        );
-
-      const coupon =
-        sharedCoupons[code];
-
-      if (!coupon) {
-        setMessage(
-          'Coupon introuvable sur cet appareil.'
-        );
-        return;
-      }
-
-      setSelections(
-        coupon.selections
+    if (!stake || Number(stake) <= 0) {
+      alert(
+        'Veuillez saisir une mise avant de valider.'
       );
-
-      setImportCode('');
-
-      setMessage(
-        `Coupon ${code} importé.`
-      );
-    } catch {
-      setMessage(
-        'Impossible d’importer ce coupon.'
-      );
+      return;
     }
-  }
 
-  function formatMoney(
-    value: number
-  ) {
-    return new Intl.NumberFormat(
-      'fr-FR'
-    ).format(value);
+    setValidated(true);
+
+    alert(
+      `Coupon ${couponCode} enregistré en mode démonstration.`
+    );
   }
 
   return (
-    <main className="bets-page">
+    <main className="min-h-screen bg-slate-50 pb-24">
+      <div className="mx-auto max-w-4xl px-4 py-7">
 
-      {/* HEADER */}
-      <header className="bets-header">
+        {/* ========================= */}
+        {/* HEADER */}
+        {/* ========================= */}
 
-        <div>
-          <div className="bets-logo">
-            GOA<span>LIX</span>
-          </div>
-
-          <div className="bets-subtitle">
-            SPORTS BETTING
-          </div>
-        </div>
-
-        <div className="bets-ticket-icon">
-          🎟️
-        </div>
-
-      </header>
-
-      {/* TITLE */}
-      <section className="bets-intro">
-
-        <span>
-          GOALIX
-        </span>
-
-        <h1>
-          Mon coupon
-        </h1>
-
-        <p>
-          Préparez vos sélections avant
-          de valider votre pari.
-        </p>
-
-      </section>
-
-      {/* IMPORT */}
-      <section className="import-coupon">
-
-        <div>
-          <span className="section-label">
-            PARTAGER UN COUPON
-          </span>
-
-          <h2>
-            🔎 Utiliser un code
-          </h2>
-
-          <p>
-            Entrez le code d’un coupon
-            GOALIX partagé avec vous.
-          </p>
-        </div>
-
-        <div className="import-row">
-
-          <input
-            type="text"
-            value={importCode}
-            onChange={(event) =>
-              setImportCode(
-                event.target.value
-              )
-            }
-            placeholder="Ex : GX7K4P9M"
-            maxLength={8}
-          />
-
-          <button
-            onClick={importCoupon}
-          >
-            Importer
-          </button>
-
-        </div>
-
-      </section>
-
-      {/* MESSAGE */}
-      {message && (
-        <div className="bets-message">
-          <span>✓</span>
-          {message}
-        </div>
-      )}
-
-      {/* SELECTIONS */}
-      <section className="bets-section">
-
-        <div className="bets-section-title">
-
-          <div>
-            <span>
-              SÉLECTIONS
-            </span>
-
-            <h2>
-              Ajouter des paris
-            </h2>
-          </div>
-
-          <div className="selection-count">
-            {selections.length}
-          </div>
-
-        </div>
-
-        <div className="selection-list">
-
-          {availableSelections.map(
-            (selection) => {
-
-              const selected =
-                selections.some(
-                  (item) =>
-                    item.id ===
-                    selection.id
-                );
-
-              return (
-                <button
-                  key={selection.id}
-                  onClick={() =>
-                    addSelection(
-                      selection
-                    )
-                  }
-                  disabled={selected}
-                  className={`selection-card ${
-                    selected
-                      ? 'selected'
-                      : ''
-                  }`}
-                >
-
-                  <div>
-                    <small>
-                      {selection.league}
-                    </small>
-
-                    <strong>
-                      {selection.match}
-                    </strong>
-
-                    <span>
-                      {selection.choice}
-                    </span>
-                  </div>
-
-                  <b>
-                    {selection.odds.toFixed(2)}
-                  </b>
-
-                </button>
-              );
-            }
-          )}
-
-        </div>
-
-      </section>
-
-      {/* CURRENT COUPON */}
-      <section className="current-coupon">
-
-        <div className="coupon-heading">
-
-          <div>
-            <span>
-              COUPON
-            </span>
-
-            <h2>
-              🎟️ Mon coupon
-            </h2>
-          </div>
-
-          {selections.length > 0 && (
-            <button
-              onClick={clearCoupon}
-              className="clear-button"
-            >
-              🗑️ Tout effacer
-            </button>
-          )}
-
-        </div>
-
-        {selections.length === 0 ? (
-
-          <div className="empty-coupon">
-
-            <div>
+        <header className="mb-7">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-50 text-3xl shadow-sm">
               🎟️
             </div>
 
-            <strong>
-              Votre coupon est vide
-            </strong>
+            <div>
+              <p className="text-xs font-extrabold tracking-[0.25em] text-emerald-600">
+                GOALIX
+              </p>
 
-            <p>
-              Ajoutez des sélections
-              pour commencer.
-            </p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950">
+                Mon coupon
+              </h1>
 
+              <p className="mt-1 text-slate-500">
+                Préparez vos sélections avant de
+                valider votre pari.
+              </p>
+            </div>
+          </div>
+        </header>
+
+        {/* ========================= */}
+        {/* MARCHÉS */}
+        {/* ========================= */}
+
+        <section className="mb-7">
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <p className="text-xs font-extrabold tracking-[0.2em] text-emerald-600">
+                MARCHÉS GOALIX
+              </p>
+
+              <h2 className="mt-1 text-2xl font-extrabold text-slate-950">
+                Ajouter des paris
+              </h2>
+            </div>
+
+            <span className="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-slate-700">
+              {availableSelections.length}
+            </span>
           </div>
 
-        ) : (
-
-          <>
-
-            <div className="coupon-selections">
-
-              {selections.map(
-                (selection) => (
-
-                  <div
-                    key={selection.id}
-                    className="coupon-selection"
-                  >
-
-                    <div>
-
-                      <small>
-                        {selection.league}
-                      </small>
-
-                      <strong>
-                        {selection.match}
-                      </strong>
-
-                      <span>
-                        {selection.choice}
+          <div className="space-y-4">
+            {(
+              Object.keys(
+                groupedMarkets
+              ) as MarketGroup[]
+            ).map((market) => (
+              <details
+                key={market}
+                className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200"
+                open={
+                  market === 'Résultat' ||
+                  market === 'Double chance'
+                }
+              >
+                <summary className="cursor-pointer list-none px-5 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">
+                        {marketIcons[market]}
                       </span>
 
+                      <span className="font-extrabold text-slate-950">
+                        {market}
+                      </span>
                     </div>
 
-                    <div className="coupon-right">
-
-                      <b>
-                        {selection.odds.toFixed(
-                          2
-                        )}
-                      </b>
-
-                      <button
-                        onClick={() =>
-                          removeSelection(
-                            selection.id
-                          )
-                        }
-                      >
-                        ×
-                      </button>
-
-                    </div>
-
+                    <span className="text-slate-400">
+                      ▼
+                    </span>
                   </div>
+                </summary>
 
-                )
-              )}
+                <div className="grid gap-3 border-t border-slate-100 p-4">
+                  {groupedMarkets[market].map(
+                    (selection) => {
+                      const selected =
+                        selections.some(
+                          (item) =>
+                            item.id ===
+                            selection.id
+                        );
 
-            </div>
+                      return (
+                        <button
+                          key={selection.id}
+                          onClick={() =>
+                            addSelection(
+                              selection
+                            )
+                          }
+                          className={`rounded-2xl border p-4 text-left transition active:scale-[0.99] ${
+                            selected
+                              ? 'border-emerald-400 bg-emerald-50'
+                              : 'border-slate-200 bg-slate-50 hover:border-emerald-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-semibold text-slate-400">
+                                {
+                                  selection.league
+                                }
+                              </p>
 
-            {/* TOTAL */}
-            <div className="coupon-summary">
+                              <p className="mt-1 font-bold text-slate-950">
+                                {
+                                  selection.match
+                                }
+                              </p>
 
-              <div>
-                <span>
-                  COTE TOTALE
-                </span>
+                              <p className="mt-1 text-sm font-semibold text-emerald-600">
+                                {
+                                  selection.choice
+                                }
+                              </p>
+                            </div>
 
-                <strong>
-                  {totalOdds.toFixed(2)}
-                </strong>
-              </div>
-
-              <div>
-                <span>
-                  MISE
-                </span>
-
-                <input
-                  type="number"
-                  min="0"
-                  value={stake}
-                  onChange={(event) =>
-                    setStake(
-                      event.target.value
-                    )
-                  }
-                  placeholder="0"
-                />
-
-                <small>
-                  FCFA
-                </small>
-              </div>
-
-            </div>
-
-            {/* WIN */}
-            <div className="potential-win">
-
-              <div>
-                <span>
-                  GAIN POTENTIEL
-                </span>
-
-                <strong>
-                  {formatMoney(
-                    potentialWin
-                  )}{' '}
-                  FCFA
-                </strong>
-              </div>
-
-              <span>
-                💰
-              </span>
-
-            </div>
-
-            {/* VALIDATE */}
-            <button
-              onClick={validateCoupon}
-              className="validate-button"
-            >
-              🎯 Valider le coupon
-            </button>
-
-            <p className="demo-warning">
-              Mode démonstration —
-              aucun argent réel n'est engagé.
-            </p>
-
-          </>
-        )}
-
-      </section>
-
-      {/* SHARE CODE */}
-      {shareCode && (
-
-        <section className="share-result">
-
-          <div className="share-icon">
-            🔗
+                            <div
+                              className={`min-w-[70px] rounded-xl px-3 py-3 text-center font-extrabold ${
+                                selected
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-white text-emerald-600 shadow-sm'
+                              }`}
+                            >
+                              {selection.odds.toFixed(
+                                2
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              </details>
+            ))}
           </div>
-
-          <div className="share-content">
-
-            <span>
-              VOTRE CODE GOALIX
-            </span>
-
-            <strong>
-              {shareCode}
-            </strong>
-
-            <p>
-              Partagez ce code avec
-              quelqu’un pour lui permettre
-              de retrouver votre coupon.
-            </p>
-
-            <div className="share-actions">
-
-              <button
-                onClick={copyCode}
-              >
-                📋 Copier
-              </button>
-
-              <button
-                onClick={shareCoupon}
-              >
-                📤 Partager
-              </button>
-
-            </div>
-
-          </div>
-
         </section>
 
-      )}
+        {/* ========================= */}
+        {/* COUPON */}
+        {/* ========================= */}
 
-      {/* MY BETS */}
-      <section className="my-bets">
+        <section className="rounded-[2rem] bg-slate-950 p-5 text-white shadow-xl">
 
-        <div className="bets-section-title">
+          <div className="mb-5 flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-3xl">
+                🎟️
+              </div>
 
-          <div>
-            <span>
-              HISTORIQUE
-            </span>
+              <div>
+                <p className="text-xs font-extrabold tracking-[0.25em] text-emerald-400">
+                  GOALIX
+                </p>
 
-            <h2>
-              📋 Mes paris
-            </h2>
+                <h2 className="text-2xl font-extrabold">
+                  Votre coupon
+                </h2>
+              </div>
+            </div>
+
+            {selections.length > 0 && (
+              <button
+                onClick={clearCoupon}
+                className="rounded-xl bg-red-500/15 px-4 py-3 text-sm font-extrabold text-red-300 transition hover:bg-red-500/25"
+              >
+                Effacer
+              </button>
+            )}
           </div>
 
-          <div className="selection-count">
-            {history.length}
-          </div>
+          {/* CODE COUPON */}
 
-        </div>
+          {selections.length > 0 && couponCode && (
+            <div className="mb-5 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-4">
 
-        {history.length === 0 ? (
-
-          <div className="empty-history">
-
-            <span>
-              📋
-            </span>
-
-            <strong>
-              Aucun pari enregistré
-            </strong>
-
-            <p>
-              Vos coupons validés
-              apparaîtront ici.
-            </p>
-
-          </div>
-
-        ) : (
-
-          <div className="history-list">
-
-            {history.map(
-              (coupon) => (
-
-                <article
-                  key={coupon.id}
-                  className="history-card"
-                >
-
-                  <div className="history-top">
-
-                    <div>
-                      <span>
-                        CODE COUPON
-                      </span>
-
-                      <strong>
-                        {coupon.code}
-                      </strong>
-                    </div>
-
-                    <div className="pending-status">
-                      🟡 En attente
-                    </div>
-
-                  </div>
-
-                  <p className="history-date">
-                    {coupon.createdAt}
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold tracking-wider text-slate-400">
+                    CODE DU COUPON
                   </p>
 
-                  <div className="history-selections">
+                  <p className="mt-1 text-2xl font-black tracking-[0.15em] text-emerald-300">
+                    {couponCode}
+                  </p>
+                </div>
 
-                    {coupon.selections.map(
-                      (selection) => (
-
-                        <div
-                          key={selection.id}
-                        >
-
-                          <span>
-                            {selection.match}
-                          </span>
-
-                          <b>
-                            {selection.odds.toFixed(
-                              2
-                            )}
-                          </b>
-
-                        </div>
-
-                      )
-                    )}
-
-                  </div>
-
-                  <div className="history-summary">
-
-                    <div>
-                      <small>
-                        Cote
-                      </small>
-
-                      <strong>
-                        {coupon.totalOdds.toFixed(
-                          2
-                        )}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <small>
-                        Mise
-                      </small>
-
-                      <strong>
-                        {formatMoney(
-                          coupon.stake
-                        )}{' '}
-                        FCFA
-                      </strong>
-                    </div>
-
-                    <div>
-                      <small>
-                        Gain potentiel
-                      </small>
-
-                      <strong>
-                        {formatMoney(
-                          coupon.potentialWin
-                        )}{' '}
-                        FCFA
-                      </strong>
-                    </div>
-
-                  </div>
-
-                  <div className="history-share">
-
-                    <button
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(
-                            coupon.code
-                          );
-
-                          setMessage(
-                            'Code copié !'
-                          );
-                        } catch {
-                          setMessage(
-                            `Code : ${coupon.code}`
-                          );
-                        }
-                      }}
-                    >
-                      📋 {coupon.code}
-                    </button>
-
-                    <button
-                      onClick={async () => {
-
-                        const text =
-                          `🎟️ Coupon GOALIX\n` +
-                          `Code : ${coupon.code}\n` +
-                          `Cote : ${coupon.totalOdds.toFixed(2)}`;
-
-                        try {
-                          if (
-                            navigator.share
-                          ) {
-                            await navigator.share({
-                              title:
-                                'Coupon GOALIX',
-                              text,
-                            });
-                          } else {
-                            await navigator.clipboard.writeText(
-                              text
-                            );
-
-                            setMessage(
-                              'Message copié.'
-                            );
-                          }
-                        } catch {
-                          setMessage(
-                            'Partage annulé.'
-                          );
-                        }
-
-                      }}
-                    >
-                      📤 Partager
-                    </button>
-
-                  </div>
-
-                </article>
-
-              )
-            )}
-
-          </div>
-
-        )}
-
-      </section>
-
-      {/* INFO */}
-      <section className="bets-info">
-
-        <span>
-          🔐
-        </span>
-
-        <div>
-          <strong>
-            Vos paris
-          </strong>
-
-          <p>
-            Cette version utilise un stockage
-            local de démonstration. Le système
-            sera connecté à votre compte GOALIX
-            et à PostgreSQL dans une prochaine
-            étape.
-          </p>
-        </div>
-
-      </section>
-
-      {/* FOOTER 
+                <div className="flex gap-2">
+                  <button
+                    onClick={copyCouponCode}
+                    className="rounded-xl bg-white/10 px-3 py-3 text-sm font-bold"
+                  >
+                    {copied
+                      ? '✓ Copié'
+  
