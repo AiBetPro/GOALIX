@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-type MarketGroup =
+type Market =
   | 'Résultat'
   | 'Double chance'
   | 'Total buts'
@@ -13,15 +13,13 @@ type Selection = {
   id: string;
   match: string;
   league: string;
-  market: MarketGroup;
+  market: Market;
   choice: string;
   odds: number;
 };
 
-const availableSelections: Selection[] = [
-  // =========================
-  // RÉSULTAT 1X2
-  // =========================
+const selectionsAvailable: Selection[] = [
+  // RESULTAT
   {
     id: 'arsenal-chelsea-1',
     match: 'Arsenal vs Chelsea',
@@ -47,9 +45,7 @@ const availableSelections: Selection[] = [
     odds: 4.90,
   },
 
-  // =========================
   // DOUBLE CHANCE
-  // =========================
   {
     id: 'arsenal-chelsea-1x',
     match: 'Arsenal vs Chelsea',
@@ -75,9 +71,7 @@ const availableSelections: Selection[] = [
     odds: 1.30,
   },
 
-  // =========================
   // TOTAL BUTS
-  // =========================
   {
     id: 'arsenal-chelsea-over15',
     match: 'Arsenal vs Chelsea',
@@ -127,15 +121,13 @@ const availableSelections: Selection[] = [
     odds: 1.50,
   },
 
-  // =========================
-  // LES DEUX ÉQUIPES MARQUENT
-  // =========================
+  // BTTS
   {
     id: 'arsenal-chelsea-btts-yes',
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
     market: 'Les deux équipes marquent',
-    choice: 'Les deux équipes marquent — Oui',
+    choice: 'Oui',
     odds: 1.62,
   },
   {
@@ -143,59 +135,17 @@ const availableSelections: Selection[] = [
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
     market: 'Les deux équipes marquent',
-    choice: 'Les deux équipes marquent — Non',
+    choice: 'Non',
     odds: 2.15,
   },
 
-  // =========================
-  // BUTS ARSENAL
-  // =========================
-  {
-    id: 'arsenal-chelsea-arsenal-over05',
-    match: 'Arsenal vs Chelsea',
-    league: 'Premier League',
-    market: 'Total buts',
-    choice: 'Arsenal — Plus de 0,5 but',
-    odds: 1.22,
-  },
-  {
-    id: 'arsenal-chelsea-arsenal-over15',
-    match: 'Arsenal vs Chelsea',
-    league: 'Premier League',
-    market: 'Total buts',
-    choice: 'Arsenal — Plus de 1,5 buts',
-    odds: 1.75,
-  },
-
-  // =========================
-  // BUTS CHELSEA
-  // =========================
-  {
-    id: 'arsenal-chelsea-chelsea-over05',
-    match: 'Arsenal vs Chelsea',
-    league: 'Premier League',
-    market: 'Total buts',
-    choice: 'Chelsea — Plus de 0,5 but',
-    odds: 1.45,
-  },
-  {
-    id: 'arsenal-chelsea-chelsea-over15',
-    match: 'Arsenal vs Chelsea',
-    league: 'Premier League',
-    market: 'Total buts',
-    choice: 'Chelsea — Plus de 1,5 buts',
-    odds: 2.30,
-  },
-
-  // =========================
   // SCORE EXACT
-  // =========================
   {
     id: 'arsenal-chelsea-score-10',
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
     market: 'Score exact',
-    choice: 'Score exact — 1-0',
+    choice: '1 - 0',
     odds: 7.00,
   },
   {
@@ -203,7 +153,7 @@ const availableSelections: Selection[] = [
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
     market: 'Score exact',
-    choice: 'Score exact — 1-1',
+    choice: '1 - 1',
     odds: 6.50,
   },
   {
@@ -211,7 +161,7 @@ const availableSelections: Selection[] = [
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
     market: 'Score exact',
-    choice: 'Score exact — 2-0',
+    choice: '2 - 0',
     odds: 7.50,
   },
   {
@@ -219,15 +169,13 @@ const availableSelections: Selection[] = [
     match: 'Arsenal vs Chelsea',
     league: 'Premier League',
     market: 'Score exact',
-    choice: 'Score exact — 2-1',
+    choice: '2 - 1',
     odds: 8.00,
   },
 
-  // =========================
-  // AUTRES MATCHS
-  // =========================
+  // BARCELONA
   {
-    id: 'barca-sevilla-1',
+    id: 'barcelona-sevilla-1',
     match: 'Barcelona vs Sevilla',
     league: 'La Liga',
     market: 'Résultat',
@@ -235,7 +183,7 @@ const availableSelections: Selection[] = [
     odds: 1.42,
   },
   {
-    id: 'barca-sevilla-1x',
+    id: 'barcelona-sevilla-1x',
     match: 'Barcelona vs Sevilla',
     league: 'La Liga',
     market: 'Double chance',
@@ -243,7 +191,7 @@ const availableSelections: Selection[] = [
     odds: 1.12,
   },
   {
-    id: 'barca-sevilla-over25',
+    id: 'barcelona-sevilla-over25',
     match: 'Barcelona vs Sevilla',
     league: 'La Liga',
     market: 'Total buts',
@@ -251,13 +199,15 @@ const availableSelections: Selection[] = [
     odds: 1.55,
   },
   {
-    id: 'barca-sevilla-btts',
+    id: 'barcelona-sevilla-btts',
     match: 'Barcelona vs Sevilla',
     league: 'La Liga',
     market: 'Les deux équipes marquent',
-    choice: 'Les deux équipes marquent — Oui',
+    choice: 'Oui',
     odds: 1.68,
   },
+
+  // INTER MILAN
   {
     id: 'inter-milan-1',
     match: 'Inter vs Milan',
@@ -284,7 +234,7 @@ const availableSelections: Selection[] = [
   },
 ];
 
-const marketIcons: Record<MarketGroup, string> = {
+const marketIcons: Record<Market, string> = {
   Résultat: '⚽',
   'Double chance': '🔄',
   'Total buts': '🥅',
@@ -292,13 +242,17 @@ const marketIcons: Record<MarketGroup, string> = {
   'Score exact': '🎯',
 };
 
-function generateCouponCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function createCouponCode() {
+  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
   let code = '';
 
   for (let i = 0; i < 6; i += 1) {
-    code += chars[Math.floor(Math.random() * chars.length)];
+    const index = Math.floor(
+      Math.random() * characters.length
+    );
+
+    code += characters[index];
   }
 
   return `GX-${code}`;
@@ -312,7 +266,6 @@ export default function BetsPage() {
   const [shared, setShared] = useState(false);
   const [validated, setValidated] = useState(false);
 
-  // Charger le coupon sauvegardé
   useEffect(() => {
     try {
       const savedSelections = localStorage.getItem(
@@ -343,14 +296,10 @@ export default function BetsPage() {
         setCouponCode(savedCode);
       }
     } catch (error) {
-      console.error(
-        'Erreur lors du chargement du coupon:',
-        error
-      );
+      console.error('Erreur chargement coupon:', error);
     }
   }, []);
 
-  // Sauvegarder automatiquement
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -370,10 +319,7 @@ export default function BetsPage() {
         );
       }
     } catch (error) {
-      console.error(
-        'Erreur lors de la sauvegarde du coupon:',
-        error
-      );
+      console.error('Erreur sauvegarde coupon:', error);
     }
   }, [selections, stake, couponCode]);
 
@@ -399,37 +345,16 @@ export default function BetsPage() {
     return amount * totalOdds;
   }, [stake, totalOdds]);
 
-  const groupedMarkets = useMemo(() => {
-    const groups: Record<
-      MarketGroup,
-      Selection[]
-    > = {
-      Résultat: [],
-      'Double chance': [],
-      'Total buts': [],
-      'Les deux équipes marquent': [],
-      'Score exact': [],
-    };
-
-    availableSelections.forEach((selection) => {
-      groups[selection.market].push(selection);
-    });
-
-    return groups;
-  }, []);
-
   function addSelection(selection: Selection) {
     setSelections((current) => {
-      if (
-        current.some(
-          (item) => item.id === selection.id
-        )
-      ) {
+      const alreadySelected = current.some(
+        (item) => item.id === selection.id
+      );
+
+      if (alreadySelected) {
         return current;
       }
 
-      // Pour un même match et un même marché,
-      // on remplace la sélection précédente.
       const sameMarket = current.find(
         (item) =>
           item.match === selection.match &&
@@ -448,7 +373,7 @@ export default function BetsPage() {
     });
 
     if (!couponCode) {
-      setCouponCode(generateCouponCode());
+      setCouponCode(createCouponCode());
     }
 
     setValidated(false);
@@ -456,9 +381,7 @@ export default function BetsPage() {
 
   function removeSelection(id: string) {
     setSelections((current) =>
-      current.filter(
-        (selection) => selection.id !== id
-      )
+      current.filter((item) => item.id !== id)
     );
 
     setValidated(false);
@@ -501,14 +424,9 @@ export default function BetsPage() {
         setCopied(false);
       }, 2000);
     } catch (error) {
-      console.error(
-        'Impossible de copier le code:',
-        error
-      );
+      console.error('Erreur copie:', error);
 
-      alert(
-        `Code du coupon : ${couponCode}`
-      );
+      alert(`Code GOALIX : ${couponCode}`);
     }
   }
 
@@ -517,11 +435,11 @@ export default function BetsPage() {
       return;
     }
 
-    const shareText = [
+    const text = [
       '🎟️ Coupon GOALIX',
       '',
       `Code : ${couponCode}`,
-      `Nombre de paris : ${selections.length}`,
+      `Paris : ${selections.length}`,
       `Cote totale : ${totalOdds.toFixed(2)}`,
       stake
         ? `Mise : ${Number(stake).toLocaleString(
@@ -529,19 +447,16 @@ export default function BetsPage() {
           )} FCFA`
         : '',
       '',
-      'Ouvre GOALIX pour retrouver ce coupon.',
+      'Coupon GOALIX — mode démonstration.',
     ]
       .filter(Boolean)
       .join('\n');
 
     try {
-      if (
-        typeof navigator !== 'undefined' &&
-        navigator.share
-      ) {
+      if (navigator.share) {
         await navigator.share({
           title: 'Coupon GOALIX',
-          text: shareText,
+          text,
         });
 
         setShared(true);
@@ -550,40 +465,25 @@ export default function BetsPage() {
           setShared(false);
         }, 2000);
       } else {
-        await navigator.clipboard.writeText(
-          shareText
-        );
-
-        setShared(true);
-
-        setTimeout(() => {
-          setShared(false);
-        }, 2000);
+        await navigator.clipboard.writeText(text);
 
         alert(
           'Le partage direct n’est pas disponible. Le coupon a été copié.'
         );
       }
     } catch (error) {
-      console.error(
-        'Erreur lors du partage:',
-        error
-      );
+      console.error('Erreur partage:', error);
     }
   }
 
   function validateCoupon() {
     if (selections.length === 0) {
-      alert(
-        'Ajoutez au moins une sélection avant de valider.'
-      );
+      alert('Ajoutez au moins une sélection.');
       return;
     }
 
     if (!stake || Number(stake) <= 0) {
-      alert(
-        'Veuillez saisir une mise avant de valider.'
-      );
+      alert('Veuillez saisir une mise.');
       return;
     }
 
@@ -598,9 +498,7 @@ export default function BetsPage() {
     <main className="min-h-screen bg-slate-50 pb-24">
       <div className="mx-auto max-w-4xl px-4 py-7">
 
-        {/* ========================= */}
         {/* HEADER */}
-        {/* ========================= */}
 
         <header className="mb-7">
           <div className="flex items-center gap-4">
@@ -613,177 +511,170 @@ export default function BetsPage() {
                 GOALIX
               </p>
 
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950">
+              <h1 className="text-4xl font-extrabold text-slate-950">
                 Mon coupon
               </h1>
 
               <p className="mt-1 text-slate-500">
-                Préparez vos sélections avant de
-                valider votre pari.
+                Préparez vos sélections avant de valider.
               </p>
             </div>
           </div>
         </header>
 
-        {/* ========================= */}
         {/* MARCHÉS */}
-        {/* ========================= */}
 
         <section className="mb-7">
-          <div className="mb-4 flex items-end justify-between">
-            <div>
-              <p className="text-xs font-extrabold tracking-[0.2em] text-emerald-600">
-                MARCHÉS GOALIX
-              </p>
+          <div className="mb-4">
+            <p className="text-xs font-extrabold tracking-[0.2em] text-emerald-600">
+              MARCHÉS GOALIX
+            </p>
 
-              <h2 className="mt-1 text-2xl font-extrabold text-slate-950">
-                Ajouter des paris
-              </h2>
-            </div>
-
-            <span className="rounded-full bg-slate-200 px-4 py-2 text-sm font-bold text-slate-700">
-              {availableSelections.length}
-            </span>
+            <h2 className="mt-1 text-2xl font-extrabold text-slate-950">
+              Ajouter des paris
+            </h2>
           </div>
 
           <div className="space-y-4">
             {(
-              Object.keys(
-                groupedMarkets
-              ) as MarketGroup[]
-            ).map((market) => (
-              <details
-                key={market}
-                className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200"
-                open={
-                  market === 'Résultat' ||
-                  market === 'Double chance'
-                }
-              >
-                <summary className="cursor-pointer list-none px-5 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">
-                        {marketIcons[market]}
-                      </span>
+              [
+                'Résultat',
+                'Double chance',
+                'Total buts',
+                'Les deux équipes marquent',
+                'Score exact',
+              ] as Market[]
+            ).map((market) => {
+              const marketSelections =
+                selectionsAvailable.filter(
+                  (item) => item.market === market
+                );
 
-                      <span className="font-extrabold text-slate-950">
-                        {market}
+              return (
+                <details
+                  key={market}
+                  className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200"
+                  open={market === 'Résultat'}
+                >
+                  <summary className="cursor-pointer list-none px-5 py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">
+                          {marketIcons[market]}
+                        </span>
+
+                        <span className="font-extrabold text-slate-950">
+                          {market}
+                        </span>
+                      </div>
+
+                      <span className="text-slate-400">
+                        ▼
                       </span>
                     </div>
+                  </summary>
 
-                    <span className="text-slate-400">
-                      ▼
-                    </span>
-                  </div>
-                </summary>
+                  <div className="space-y-3 border-t border-slate-100 p-4">
+                    {marketSelections.map(
+                      (selection) => {
+                        const isSelected =
+                          selections.some(
+                            (item) =>
+                              item.id ===
+                              selection.id
+                          );
 
-                <div className="grid gap-3 border-t border-slate-100 p-4">
-                  {groupedMarkets[market].map(
-                    (selection) => {
-                      const selected =
-                        selections.some(
-                          (item) =>
-                            item.id ===
-                            selection.id
+                        return (
+                          <button
+                            key={selection.id}
+                            type="button"
+                            onClick={() =>
+                              addSelection(
+                                selection
+                              )
+                            }
+                            className={`w-full rounded-2xl border p-4 text-left transition active:scale-[0.99] ${
+                              isSelected
+                                ? 'border-emerald-400 bg-emerald-50'
+                                : 'border-slate-200 bg-slate-50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <p className="text-xs font-semibold text-slate-400">
+                                  {
+                                    selection.league
+                                  }
+                                </p>
+
+                                <p className="mt-1 font-bold text-slate-950">
+                                  {
+                                    selection.match
+                                  }
+                                </p>
+
+                                <p className="mt-1 text-sm font-semibold text-emerald-600">
+                                  {
+                                    selection.choice
+                                  }
+                                </p>
+                              </div>
+
+                              <div
+                                className={`rounded-xl px-4 py-3 font-extrabold ${
+                                  isSelected
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-white text-emerald-600 shadow-sm'
+                                }`}
+                              >
+                                {selection.odds.toFixed(
+                                  2
+                                )}
+                              </div>
+                            </div>
+                          </button>
                         );
-
-                      return (
-                        <button
-                          key={selection.id}
-                          onClick={() =>
-                            addSelection(
-                              selection
-                            )
-                          }
-                          className={`rounded-2xl border p-4 text-left transition active:scale-[0.99] ${
-                            selected
-                              ? 'border-emerald-400 bg-emerald-50'
-                              : 'border-slate-200 bg-slate-50 hover:border-emerald-300'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-xs font-semibold text-slate-400">
-                                {
-                                  selection.league
-                                }
-                              </p>
-
-                              <p className="mt-1 font-bold text-slate-950">
-                                {
-                                  selection.match
-                                }
-                              </p>
-
-                              <p className="mt-1 text-sm font-semibold text-emerald-600">
-                                {
-                                  selection.choice
-                                }
-                              </p>
-                            </div>
-
-                            <div
-                              className={`min-w-[70px] rounded-xl px-3 py-3 text-center font-extrabold ${
-                                selected
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'bg-white text-emerald-600 shadow-sm'
-                              }`}
-                            >
-                              {selection.odds.toFixed(
-                                2
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    }
-                  )}
-                </div>
-              </details>
-            ))}
+                      }
+                    )}
+                  </div>
+                </details>
+              );
+            })}
           </div>
         </section>
 
-        {/* ========================= */}
         {/* COUPON */}
-        {/* ========================= */}
 
         <section className="rounded-[2rem] bg-slate-950 p-5 text-white shadow-xl">
 
           <div className="mb-5 flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-3xl">
-                🎟️
-              </div>
+            <div>
+              <p className="text-xs font-extrabold tracking-[0.25em] text-emerald-400">
+                GOALIX
+              </p>
 
-              <div>
-                <p className="text-xs font-extrabold tracking-[0.25em] text-emerald-400">
-                  GOALIX
-                </p>
-
-                <h2 className="text-2xl font-extrabold">
-                  Votre coupon
-                </h2>
-              </div>
+              <h2 className="mt-1 text-2xl font-extrabold">
+                🎟️ Votre coupon
+              </h2>
             </div>
 
             {selections.length > 0 && (
               <button
+                type="button"
                 onClick={clearCoupon}
-                className="rounded-xl bg-red-500/15 px-4 py-3 text-sm font-extrabold text-red-300 transition hover:bg-red-500/25"
+                className="rounded-xl bg-red-500/15 px-4 py-3 text-sm font-extrabold text-red-300"
               >
                 Effacer
               </button>
             )}
           </div>
 
-          {/* CODE COUPON */}
+          {/* CODE */}
 
           {selections.length > 0 && couponCode && (
             <div className="mb-5 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-              <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold tracking-wider text-slate-400">
                     CODE DU COUPON
@@ -796,9 +687,86 @@ export default function BetsPage() {
 
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={copyCouponCode}
                     className="rounded-xl bg-white/10 px-3 py-3 text-sm font-bold"
                   >
-                    {copied
-                      ? '✓ Copié'
-  
+                    {copied ? '✓ Copié' : '📋 Copier'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={shareCoupon}
+                    className="rounded-xl bg-emerald-500 px-3 py-3 text-sm font-bold"
+                  >
+                    {shared
+                      ? '✓ Partagé'
+                      : '📤 Partager'}
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-3 text-xs leading-5 text-slate-400">
+                Vous pouvez partager ce code avant de
+                valider le coupon.
+              </p>
+            </div>
+          )}
+
+          {/* SELECTIONS */}
+
+          {selections.length === 0 ? (
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-7 text-center">
+              <div className="text-4xl">🎟️</div>
+
+              <p className="mt-3 font-bold text-slate-200">
+                Votre coupon est vide.
+              </p>
+
+              <p className="mt-2 text-sm text-slate-400">
+                Choisissez une cote dans les marchés
+                ci-dessus.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {selections.map((selection) => (
+                  <div
+                    key={selection.id}
+                    className="rounded-2xl bg-white/10 p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-400">
+                          {selection.market}
+                        </p>
+
+                        <p className="mt-1 font-bold text-white">
+                          {selection.match}
+                        </p>
+
+                        <p className="mt-1 text-sm text-slate-300">
+                          {selection.choice}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <strong className="text-lg text-emerald-300">
+                          {selection.odds.toFixed(2)}
+                        </strong>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeSelection(
+                              selection.id
+                            )
+                          }
+                          className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/15 text-lg font-bold text-red-300"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+     
