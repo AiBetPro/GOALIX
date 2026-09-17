@@ -289,10 +289,11 @@ export default function DashboardPage() {
 
             filteredMatches.map((match) => (
 
-              <article
-                key={match.id}
-                className="dashboard-match"
-              >
+              <a
+  key={match.id}
+  href={`/match/${match.id}`}
+  className="dashboard-match"
+>
 
                 <div className="match-header">
 
@@ -367,7 +368,7 @@ export default function DashboardPage() {
 
                 </div>
 
-              </article>
+              </a>
 
             ))
 
