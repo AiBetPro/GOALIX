@@ -1,0 +1,367 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+
+type RiskProfile = 'prudent' | 'equilibre' | 'audacieux';
+
+type Match = {
+  id: string;
+  league: string;
+  homeTeam: string;
+  awayTeam: string;
+  selection: string;
+  odds: number;
+  score: number;
+  probability: number;
+  risk: RiskProfile;
+  reason: string;
+};
+
+const matches: Match[] = [
+  {
+    id: 'arsenal-chelsea',
+    league: 'Premier League',
+    homeTeam: 'Arsenal',
+    awayTeam: 'Chelsea',
+    selection: 'Arsenal gagne',
+    odds: 1.65,
+    score: 82,
+    probability: 61,
+    risk: 'prudent',
+    reason:
+      'Arsenal domine le duel sur le plan du contrôle du ballon et de la création. Le profil est solide et rassurant pour un pari plus équilibré.',
+  },
+  {
+    id: 'barcelona-sevilla',
+    league: 'La Liga',
+    homeTeam: 'Barcelona',
+    awayTeam: 'Sevilla',
+    selection: 'Barcelona gagne',
+    odds: 1.42,
+    score: 91,
+    probability: 70,
+    risk: 'prudent',
+    reason:
+      'Le plus fort at home avec une attaque très productive. La valeur reste saine malgré une cote courte, ce qui garde le pari dans le profil prudent.',
+  },
+  {
+    id: 'inter-milan',
+    league: 'Serie A',
+    homeTeam: 'Inter',
+    awayTeam: 'Milan',
+    selection: 'Inter gagne',
+    odds: 1.75,
+    score: 76,
+    probability: 57,
+    risk: 'equilibre',
+    reason:
+      'Cote plus intéressante, avec une équipe qui contrôle les phases de possession et impose souvent son rythme sur la mi-temps.',
+  },
+  {
+    id: 'real-atletico',
+    league: 'La Liga',
+    homeTeam: 'Real Madrid',
+    awayTeam: 'Atlético Madrid',
+    selection: 'Real Madrid gagne',
+    odds: 1.72,
+    score: 74,
+    probability: 56,
+    risk: 'equilibre',
+    reason:
+      'Le contexte de forme et la qualité d’attaque des Merengues rendent cette sélection très crédible pour un canal de rendement bon.',
+  },
+  {
+    id: 'psg-lyon',
+    league: 'Ligue 1',
+    homeTeam: 'PSG',
+    awayTeam: 'Lyon',
+    selection: 'PSG gagne',
+    odds: 1.48,
+    score: 68,
+    probability: 54,
+    risk: 'audacieux',
+    reason:
+      'L’option est plus risquée techniquement mais reste intéressante si tu cherches une sélection plus offensive dans le coupon.',
+  },
+];
+
+const riskLabels: Record<RiskProfile, string> = {
+  prudent: 'Prudent',
+  equilibre: 'Équilibré',
+  audacieux: 'Audacieux',
+};
+
+export default function AiPronoPage() {
+  const [risk, setRisk] = useState<RiskProfile>('prudent');
+  const [selected, setSelected] = useState<Match[]>([]);
+  const [generated, setGenerated] = useState(false);
+
+  const filteredMatches = useMemo(() => {
+    if (risk === 'prudent') {
+      return matches.filter((match) => match.risk === 'prudent');
+    }
+
+    if (risk === 'equilibre') {
+      return matches.filter((match) => match.risk === 'prudent' || match.risk === 'equilibre');
+    }
+
+    return matches;
+  }, [risk]);
+
+  const totalOdds = useMemo(() => {
+    if (selected.length === 0) return 0;
+    return selected.reduce((total, match) => total * match.odds, 1);
+  }, [selected]);
+
+  function toggleSelection(match: Match) {
+    setSelected((current) => {
+      const exists = current.some((item) => item.id === match.id);
+      if (exists) {
+        return current.filter((item) => item.id !== match.id);
+      }
+      return [...current, match];
+    });
+  }
+
+  function generateCoupon() {
+    const recommended = [...filteredMatches]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, risk === 'prudent' ? 2 : 3);
+
+    setSelected(recommended);
+    setGenerated(true);
+  }
+
+  return (
+    <main className="goalix-ai-page">
+      <div className="goalix-ai-shell">
+        <header className="goalix-ai-header glass-panel">
+          <div className="brand-block">
+            <div className="brand-mark">G</div>
+            <div className="brand-text">
+              GOA<span>LIX</span>
+            </div>
+          </div>
+
+          <nav className="dashboard-nav desktop-nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/live">Live</a>
+            <a href="/ai-prono" className="active">IA Prono</a>
+            <a href="/bets">Bet slip</a>
+          </nav>
+
+          <button className="profile-pill" aria-label="Profil">👤</button>
+        </header>
+
+        <section className="ai-hero glass-panel">
+          <div className="ai-hero-copy">
+            <div className="eyebrow-row">
+              <span className="status-dot" />
+              Artificial intelligence
+            </div>
+
+            <h1>
+              IA <span>Prono</span>
+            </h1>
+
+            <p>
+              Analyse rapide des matchs, probabilités, cotes et recommandations selon ton profil de risque.
+            </p>
+          </div>
+
+          <div className="ai-orb-wrap">
+            <div className="ai-orb-core">G</div>
+          </div>
+        </section>
+
+        <section className="ai-risk-card glass-panel">
+          <div className="inner-label">Votre profil</div>
+          <h2>Quel style de pari recherche-tu ?</h2>
+
+          <div className="ai-risk-grid">
+            {(['prudent', 'equilibre', 'audacieux'] as RiskProfile[]).map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => {
+                  setRisk(item);
+                  setGenerated(false);
+                }}
+                className={risk === item ? 'ai-risk-button active' : 'ai-risk-button'}
+              >
+                <span className="risk-icon">
+                  {item === 'prudent' ? '🟢' : item === 'equilibre' ? '🟡' : '🔴'}
+                </span>
+                <span>{riskLabels[item]}</span>
+              </button>
+            ))}
+          </div>
+
+          <button type="button" className="ai-generate-button" onClick={generateCoupon}>
+            <span>🤖</span>
+            Générer mon coupon IA
+            <span className="arrow">→</span>
+          </button>
+        </section>
+
+        {generated && (
+          <div className="ai-success-banner">
+            <div className="success-icon">✓</div>
+            <div>
+              <strong>Coupon IA généré</strong>
+              <p>Les meilleures opportunités selon ton profil ont été sélectionnées.</p>
+            </div>
+          </div>
+        )}
+
+        <section className="ai-recommendations">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Analyse Goalix</span>
+              <h2>Matchs recommandés</h2>
+            </div>
+            <span className="chip-counter">{filteredMatches.length}</span>
+          </div>
+
+          <div className="ai-match-list">
+            {filteredMatches.map((match) => {
+              const isSelected = selected.some((item) => item.id === match.id);
+
+              return (
+                <article key={match.id} className={isSelected ? 'ai-match-card selected' : 'ai-match-card'}>
+                  <div className="match-header-row">
+                    <span>{match.league}</span>
+                    <div className="ai-score-box">
+                      <small>IA score</small>
+                      <strong>{match.score}</strong>
+                    </div>
+                  </div>
+
+                  <div className="teams-row">
+                    <strong>{match.homeTeam}</strong>
+                    <span>VS</span>
+                    <strong>{match.awayTeam}</strong>
+                  </div>
+
+                  <div className="selection-row">
+                    <div>
+                      <small>Pronostic</small>
+                      <strong>{match.selection}</strong>
+                    </div>
+                    <b>{match.odds.toFixed(2)}</b>
+                  </div>
+
+                  <div className="stat-row">
+                    <div>
+                      <small>Probabilité indicative</small>
+                      <strong>{match.probability}%</strong>
+                    </div>
+                    <div>
+                      <small>Niveau</small>
+                      <strong>{riskLabels[match.risk]}</strong>
+                    </div>
+                  </div>
+
+                  <div className="reason-box">
+                    <span>💡</span>
+                    <p>{match.reason}</p>
+                  </div>
+
+                  <button type="button" onClick={() => toggleSelection(match)} className={isSelected ? 'ai-secondary-btn remove' : 'ai-secondary-btn'}>
+                    {isSelected ? '✓ Retirer du coupon' : '+ Ajouter au coupon'}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="ai-coupon glass-panel">
+          <div className="coupon-header">
+            <div className="coupon-title-block">
+              <span>🎟️</span>
+              <div>
+                <small>GOALIX AI</small>
+                <h3>Mon coupon IA</h3>
+              </div>
+            </div>
+            <strong>{selected.length}</strong>
+          </div>
+
+          {selected.length === 0 ? (
+            <div className="coupon-empty-state">
+              <div className="empty-icon">🎫</div>
+              <p>Aucun pari sélectionné</p>
+              <small>Ajoute des recommandations pour construire ton coupon.</small>
+            </div>
+          ) : (
+            <>
+              <div className="coupon-selections">
+                {selected.map((match) => (
+                  <div key={match.id} className="coupon-item">
+                    <div>
+                      <strong>{match.homeTeam} — {match.awayTeam}</strong>
+                      <span>{match.selection}</span>
+                    </div>
+                    <b>{match.odds.toFixed(2)}</b>
+                  </div>
+                ))}
+              </div>
+
+              <div className="coupon-total">
+                <span>Cote totale</span>
+                <strong>{totalOdds.toFixed(2)}</strong>
+              </div>
+            </>
+          )}
+
+          <a href="/bets" className="primary-dashboard-btn large-btn">
+            Ouvrir mon coupon
+          </a>
+        </section>
+
+        <div className="ai-warning">
+          ⚠️ Les analyses et probabilités sont indicatives. Les paris sportifs comportent un risque de perte.
+        </div>
+      </div>
+    </main>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
